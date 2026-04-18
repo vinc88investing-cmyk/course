@@ -1,0 +1,829 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Intrinsic Value Calculator – Warren Buffett's DCF Model (20-Year) | InvestingSprint</title>
+  <meta name="description" content="Calculate the intrinsic value of any stock using Warren Buffett’s owner’s earnings and a 20-year discounted cash flow (DCF) model. A powerful free tool for value investors.">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://investingsprint.com/IntrinsicValueCalculator/">
+
+  <!-- Open Graph (Facebook, LinkedIn, etc.) -->
+  <meta property="og:title" content="Intrinsic Value Calculator – Warren Buffett's 20-Year DCF Method">
+  <meta property="og:description" content="Estimate a stock's true value using Warren Buffett's DCF formula. Our calculator uses owner’s earnings and discount rates to help you make better investment decisions.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://investingsprint.com/IntrinsicValueCalculator/">
+  <!-- Optional: Add preview image -->
+  <!-- <meta property="og:image" content="https://investingsprint.com/images/intrinsic-value-preview.jpg"> -->
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Intrinsic Value Calculator – Warren Buffett’s 20-Year DCF Tool">
+  <meta name="twitter:description" content="Use owner’s earnings and long-term cash flow projections to calculate a stock’s intrinsic value – just like Warren Buffett.">
+
+  <!-- Favicon (optional) -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Intrinsic Value Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind CSS to use 'Inter' as the default font
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: '#3b82f6',
+            'primary-light': '#dbeafe',
+            secondary: '#2563eb',
+            text: '#1f2937',
+            'text-light': '#6b7280',
+            background: '#f9fafb',
+            card: '#ffffff',
+            border: '#e5e7eb',
+            // Adjusted success color for better readability on print
+            success: '#047857', // A darker green (emerald-700 equivalent)
+            warning: '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Print-specific styles to ensure elements are visible and readable */
+    @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important; /* Ensure height is not fixed */
+        min-height: 0 !important; /* Ensure min-height is not forcing size */
+        overflow: visible !important; /* Allow content to be visible */
+        box-sizing: border-box; /* Crucial for consistent sizing */
+      }
+      body {
+        background-color: #ffffff !important; /* Ensure white background for print */
+        color: #000000 !important; /* Ensure black text for print */
+        font-size: 0.95em !important; /* Slightly larger font size for readability */
+      }
+      .container {
+        box-shadow: none !important; /* Remove shadows for print */
+        border-radius: 0 !important; /* Remove rounded corners for print */
+        max-width: none !important; /* Allow full width for print */
+        margin: 0 !important; /* Remove margins for print */
+        padding: 0.25rem !important; /* Reduced padding */
+      }
+      header {
+        background-color: #ffffff !important; /* White header for print */
+        color: #000000 !important; /* Black text for header on print */
+        border-bottom: 1px solid #e5e7eb; /* Add a subtle border */
+        padding: 0.25rem !important; /* Reduced padding */
+      }
+      header h1 {
+        font-size: 1.8rem !important; /* Slightly larger header title */
+      }
+      .content {
+        padding: 0.25rem !important; /* Reduced padding */
+      }
+      /* Flex container to reorder sections for print */
+      .printable-content-wrapper {
+        display: flex !important;
+        flex-direction: column-reverse !important; /* Puts results section first */
+        gap: 0.5rem !important; /* Reduced gap between reordered sections */
+        page-break-after: avoid; /* Try to keep this entire block on one page */
+      }
+      .input-grid {
+        gap: 0.5rem !important; /* Reduced gap between inputs */
+        margin-bottom: 0.5rem !important; /* Reduced bottom margin */
+      }
+      .input-group label {
+        font-size: 0.9em !important; /* Slightly larger label font size */
+        margin-bottom: 0.1rem !important; /* Reduced label margin */
+      }
+      .input-group input {
+        padding: 0.15rem !important; /* Reduced input padding */
+        font-size: 0.95em !important; /* Slightly larger input font size */
+      }
+      .results-section {
+        margin-top: 0.5rem !important; /* Reduced top margin */
+        padding-top: 0.5rem !important; /* Reduced top padding */
+      }
+      .results-section h2 {
+        font-size: 1.5rem !important; /* Slightly larger results header */
+        margin-bottom: 0.4rem !important; /* Reduced margin */
+      }
+      .results-summary {
+        margin-bottom: 0.5rem !important; /* Reduced bottom margin */
+      }
+      .valuation-result {
+        padding: 0.6rem !important; /* Reduced padding */
+        font-size: 1.05em !important; /* Slightly larger font size */
+        margin-bottom: 0.6rem !important; /* Reduced margin */
+      }
+      .key-metrics {
+        gap: 0.5rem !important; /* Reduced gap between metric cards */
+      }
+      .metric-card {
+        padding: 0.4rem !important; /* Reduced padding */
+      }
+      .metric-card h4 {
+        font-size: 0.85em !important; /* Slightly larger metric card title */
+        margin-bottom: 0.05rem !important;
+      }
+      .metric-card p {
+        font-size: 1.15em !important; /* Slightly larger metric value */
+      }
+      table {
+        font-size: 0.95em !important; /* Slightly larger table font size */
+      }
+      table th, table td {
+        padding: 0.2rem !important; /* Further reduced table cell padding */
+      }
+
+      button, .header-button-group a { /* Hide both buttons when printing */
+        display: none !important;
+      }
+      .messageBox {
+        display: none !important; /* Hide messages when printing */
+      }
+      table, th, td {
+        border-color: #d1d5db !important; /* Ensure table borders are visible */
+      }
+      th {
+        background-color: #f3f4f6 !important; /* Light background for table headers */
+        color: #1f2937 !important; /* Dark text for table headers */
+      }
+      /* Specific overrides for valuation result text color to ensure readability */
+      .valuation-result.undervalued {
+          color: '#047857' !important; /* Darker green for print */
+      }
+      .valuation-result.overvalued {
+          color: '#b91c1c' !important; /* Darker red for print */
+      }
+      .valuation-result.fair-value {
+          color: '#2563eb' !important; /* Darker blue for print */
+      }
+      .copyright-text {
+        display: block !important; /* Ensure copyright text is visible on print */
+        color: #6b7280 !important; /* Ensure light grey for print */
+        text-align: center;
+        margin-top: 0.25rem !important; /* Reduced margin */
+        font-size: 0.85rem !important; /* Slightly larger for print */
+      }
+      /* Hide the 20-year DCF projection section for print */
+      #dcfProjectionSection {
+        display: none !important;
+      }
+      /* Show print-only elements */
+      .print-only {
+        display: block !important;
+      }
+      #printDateStamp {
+        margin-bottom: 0.5rem !important; /* Reduced margin for date stamp */
+        font-size: 0.95em !important; /* Slightly larger font size */
+      }
+    }
+
+    /* Styles for the explanation popups */
+    .explanation-popup {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        position: absolute;
+        top: 100%; /* Position below the label */
+        left: 0;
+        width: 100%; /* Take full width of parent */
+        max-width: 300px; /* Limit max width */
+        font-size: 0.85rem;
+        color: #333;
+        line-height: 1.4;
+        margin-top: 0.5rem;
+    }
+    .explanation-popup::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 15px;
+        border-width: 8px;
+        border-style: solid;
+        border-color: transparent transparent #ddd transparent;
+    }
+    .explanation-popup::after {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 15px;
+        border-width: 8px;
+        border-style: solid;
+        border-color: transparent transparent #fff transparent;
+        margin-left: -1px; /* Adjust to align with border */
+    }
+  </style>
+</head>
+<body class="font-sans antialiased bg-background text-text p-4 md:p-8">
+  <div class="container max-w-4xl mx-auto bg-card rounded-xl shadow-xl overflow-hidden">
+    <header class="bg-primary text-white p-6 md:p-8 rounded-t-xl flex justify-between items-center">
+      <h1 class="text-2xl md:text-3xl font-semibold">Intrinsic Value Calculator</h1>
+      <div class="header-button-group flex gap-3">
+        <a href="https://investingsprint.com/" target="_blank" class="bg-white text-primary py-2 px-4 rounded-lg font-medium text-base shadow-md hover:bg-gray-100 hover:shadow-lg transition-all duration-200 flex items-center justify-center">
+          © InvestingSprint.com
+        </a>
+        <div class="relative inline-block">
+            <button type="button" class="info-button bg-white text-primary text-xl w-8 h-8 rounded-lg font-medium shadow-md hover:bg-gray-100 hover:shadow-lg transition-all duration-200 flex items-center justify-center" onclick="toggleExplanation('warrenBuffettExplanation', event)">
+                ℹ
+            </button>
+            <div id="warrenBuffettExplanation" class="explanation-popup hidden right-0 left-auto" style="min-width: 350px;">
+                <p>This calculator estimates a company's intrinsic value based on Warren Buffett's Owner's Earnings concept.</p>
+                <p class="mt-2"><strong>Owner's Earnings:</strong> This represents the cash a business truly generates that can be distributed to owners without impairing its competitive position. In this calculator, it's derived from: Net Income + Depreciation & Amortization + Other Non-Cash Items – Maintenance Capital Expenditures.</p>
+                <p class="mt-2"><strong>Valuation Formula:</strong> The calculator uses a Discounted Cash Flow (DCF) model. It projects these Owner's Earnings for 20 years into the future. For the initial 5 years, it applies the 'Earnings Growth Rate' you provide. For the subsequent 15 years (years 6-20), the growth rate is automatically halved to reflect a more conservative, mature growth phase.</p>
+                <p class="mt-2">These projected earnings are then discounted back to their present value using your 'Discount Rate'. The sum of these discounted future earnings, minus the company's Net Debt (Last Quarter), gives the estimated Total Intrinsic Value. This total value is then divided by Shares Outstanding to derive the Intrinsic Value per Share. All financial statement data should be from the Trailing Twelve Months (TTM), except Net Debt which is for the Last Quarter.</p>
+            </div>
+        </div>
+        <button id="printButton" onclick="printResults()" class="bg-white text-primary py-2 px-4 rounded-lg font-medium text-base shadow-md hover:bg-gray-100 hover:shadow-lg transition-all duration-200">
+          Print to PDF
+        </button>
+      </div>
+    </header>
+
+    <div class="content p-6 md:p-8">
+      <div id="messageBox" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline" id="messageText"></span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" onclick="document.getElementById('messageBox').classList.add('hidden')">
+          <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+        </span>
+      </div>
+
+      <div id="printDateStamp" class="hidden print-only text-sm text-text-light text-right mb-4"></div>
+
+      <div class="printable-content-wrapper">
+        <div class="input-grid grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-8">
+          <div class="input-group flex flex-col">
+            <label for="stockName" class="text-sm font-medium mb-1 text-text">Stock Name</label>
+            <input type="text" id="stockName" placeholder="e.g. Apple Inc." class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="netIncome" class="text-sm font-medium text-text">Net Income (TTM) ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('netIncomeExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="netIncome" placeholder="e.g. 100.5" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="netIncomeExplanation" class="explanation-popup hidden">
+                Net Income (TTM): This is the company's profit after all expenses, including taxes, over the Trailing Twelve Months (TTM). You can find this "bottom line" figure on a company's <strong>Income Statement</strong> or on financial data platforms like <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">TradingView</a> or <a href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Yahoo Finance</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="da" class="text-sm font-medium text-text">Depreciation & Amortization ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('daExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="da" placeholder="e.g. -11.5" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="daExplanation" class="explanation-popup hidden">
+                Depreciation & Amortization (D&A): These are non-cash expenses that reduce asset values over the Trailing Twelve Months (TTM). You'll find them on the <strong>Cash Flow Statement</strong> (Operating Activities section). Check platforms like <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">TradingView</a> or <a href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Yahoo Finance</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="nonCashItems" class="text-sm font-medium text-text">(Other) Non-Cash Items ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('nonCashItemsExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="nonCashItems" placeholder="e.g. -9" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="nonCashItemsExplanation" class="explanation-popup hidden">
+                Non-Cash Items: These are adjustments to Net Income that don't involve cash movement (e.g., stock-based compensation, deferred taxes) over the Trailing Twelve Months (TTM). They're found in the Operating Activities section of the <strong>Cash Flow Statement</strong>. Look on <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">TradingView</a> or <a href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Yahoo Finance</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="capex" class="text-sm font-medium text-text">Capital Expenditures ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('capexExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="capex" placeholder="e.g. 11" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="capexExplanation" class="explanation-popup hidden">
+                Capital Expenditures (CapEx): These are funds used to acquire or upgrade physical assets over the Trailing Twelve Months (TTM). This cash outflow is listed on the <strong>Cash Flow Statement</strong> (Investing Activities section). Sources include <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">TradingView</a> or <a href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Yahoo Finance</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="netDebt" class="text-sm font-medium text-text">Net Debt ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('netDebtExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="netDebt" placeholder="e.g. 50.3" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="netDebtExplanation" class="explanation-popup hidden">
+                Net Debt: This is a company's total debt minus its cash and equivalents, typically for the Last Quarter. Calculate it using data from the <strong>Balance Sheet</strong> (e.g., Long-Term Debt, Short-Term Debt, Cash & Equivalents). You can find this data on <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">TradingView</a> or <a href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Yahoo Finance</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="marketCap" class="text-sm font-medium text-text">Current Market Cap ($B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('marketCapExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="marketCap" placeholder="e.g. 850" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="marketCapExplanation" class="explanation-popup hidden">
+                Current Market Cap: The total value of a company's outstanding shares. It's real-time market data (share price multiplied by shares outstanding), not found on primary financial statements. You can find this on financial sites like <a href="https://finviz.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Finviz</a> or Google Finance.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="sharesOutstanding" class="text-sm font-medium text-text">Shares Outstanding (B)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('sharesOutstandingExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="sharesOutstanding" placeholder="e.g. 15" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="sharesOutstandingExplanation" class="explanation-popup hidden">
+                Shares Outstanding: The total number of shares currently held by all shareholders. You can find this on market data providers such as <a href="https://finviz.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Finviz</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="growthRate" class="text-sm font-medium text-text">Earnings Growth Rate (%) (EPS Next 5 Years)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('growthRateExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="growthRate" placeholder="e.g. 10" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="growthRateExplanation" class="explanation-popup hidden">
+                Earnings Growth Rate: This is the estimated percentage growth of a company's earnings over the next five years. It's a forward-looking projection, not found on standard financial statements. Useful sources for analyst estimates include <a href="https://finviz.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Finviz</a>, <a href="https://www.zacks.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Zacks</a>, and <a href="https://seekingalpha.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Seeking Alpha</a>.
+            </div>
+          </div>
+
+          <div class="input-group flex flex-col relative">
+            <div class="flex items-center gap-2 mb-1">
+                <label for="discountRate" class="text-sm font-medium text-text">Discount Rate (%)</label>
+                <button type="button" class="info-button text-text-light hover:text-primary transition-colors duration-200 text-lg w-6 h-6 rounded-full flex items-center justify-center border border-gray-300" onclick="toggleExplanation('discountRateExplanation', event)">
+                    ℹ
+                </button>
+            </div>
+            <input type="number" id="discountRate" placeholder="e.g. 8" class="p-3 border border-border rounded-md text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all duration-2-00" oninput="saveData()">
+            <div id="discountRateExplanation" class="explanation-popup hidden">
+                Discount Rate: The rate used to calculate the present value of future cash flows, often representing your required rate of return or the company's Weighted Average Cost of Capital (WACC).
+                <p class="mt-2"><strong>Indications:</strong> Around **8%** for double-digit growth stocks; around **5%** for defensive, stable stocks with lower growth.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
+            <button onclick="calculateIV()" class="bg-primary text-white py-3 px-6 rounded-lg font-medium text-lg shadow-md hover:bg-secondary hover:shadow-lg transition-all duration-200 w-full md:w-auto">
+              Calculate Intrinsic Value
+            </button>
+            <button onclick="resetCalculator()" class="bg-gray-200 text-text py-3 px-6 rounded-lg font-medium text-lg shadow-md hover:bg-gray-300 hover:shadow-lg transition-all duration-200 w-full md:w-auto">
+              Reset
+            </button>
+        </div>
+
+
+        <div class="results-section hidden mt-8 pt-8 border-t border-border" id="resultsSection">
+          <h2 class="text-xl md:text-2xl font-semibold mb-4 text-primary">Results for <span id="resultStockName"></span></h2>
+
+          <div class="results-summary mb-8">
+            <div id="valuationResult" class="valuation-result text-center p-6 rounded-lg mb-6 font-semibold text-lg">
+              Valuation compared to market cap will appear here
+            </div>
+
+            <div class="key-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="metric-card bg-primary-light p-4 rounded-lg text-center shadow-sm">
+                <h4 class="text-sm font-medium text-primary mb-1">Owner's Earnings</h4>
+                <p id="ownersEarnings" class="text-xl font-bold text-text">$0.00B</p>
+              </div>
+
+              <div class="metric-card bg-primary-light p-4 rounded-lg text-center shadow-sm">
+                <h4 class="text-sm font-medium text-primary mb-1">Total Intrinsic Value</h4>
+                <p id="intrinsicValue" class="text-xl font-bold text-text">$0.00B</p>
+              </div>
+
+              <div class="metric-card bg-primary-light p-4 rounded-lg text-center shadow-sm">
+                <h4 class="text-sm font-medium text-primary mb-1">Intrinsic Value per Share</h4>
+                <p id="intrinsicValuePerShare" class="text-xl font-bold text-text">$0.00</p>
+              </div>
+
+              <div class="metric-card bg-primary-light p-4 rounded-lg text-center shadow-sm">
+                <h4 class="text-sm font-medium text-primary mb-1">Market Cap</h4>
+                <p id="displayMarketCap" class="text-xl font-bold text-text">$0.00B</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="dcfProjectionSection">
+            <h3 class="text-lg md:text-xl font-medium mt-6 mb-4">20-Year Discounted Cash Flow Projection</h3>
+            <div class="overflow-x-auto rounded-lg shadow-md">
+              <table class="w-full border-collapse text-sm">
+                <thead>
+                  <tr class="bg-primary-light">
+                    <th class="p-3 text-left text-primary font-semibold rounded-tl-lg">Year</th>
+                    <th class="p-3 text-left text-primary font-semibold">Free Cash Flow ($B)</th>
+                    <th class="p-3 text-left text-primary font-semibold">Discount Factor</th>
+                    <th class="p-3 text-left text-primary font-semibold rounded-tr-lg">Discounted Cash Flow ($B)</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="p-6 md:p-8 text-center text-text-light text-sm copyright-text">
+        © 2025 InvestingSprint. This tool is provided for educational and informational purposes only and should not be considered financial or investment advice.
+    </footer>
+  </div>
+
+  <script>
+    // Fixed key for local storage as multi-tab functionality is removed
+    const LOCAL_STORAGE_KEY = 'intrinsicValueCalculatorData';
+
+    /**
+     * Saves the current form input values and calculated results to local storage.
+     */
+    function saveData() {
+        const inputs = {};
+        document.querySelectorAll('.input-grid input').forEach(input => {
+            inputs[input.id] = input.value;
+        });
+
+        // Also save results if they are visible
+        const resultsSection = document.getElementById('resultsSection');
+        if (!resultsSection.classList.contains('hidden')) {
+            inputs['ownersEarningsResult'] = document.getElementById('ownersEarnings').innerText;
+            inputs['intrinsicValueResult'] = document.getElementById('intrinsicValue').innerText;
+            inputs['intrinsicValuePerShareResult'] = document.getElementById('intrinsicValuePerShare').innerText;
+            inputs['displayMarketCapResult'] = document.getElementById('displayMarketCap').innerText;
+            inputs['resultStockNameResult'] = document.getElementById('resultStockName').innerText;
+            inputs['valuationResultHTML'] = document.getElementById('valuationResult').innerHTML;
+            inputs['valuationResultClasses'] = document.getElementById('valuationResult').className;
+            inputs['resultsTableHTML'] = document.getElementById('resultsTable').innerHTML;
+        }
+
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(inputs));
+    }
+
+    /**
+     * Loads saved data from local storage and populates the form and results.
+     */
+    function loadData() {
+        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (savedData) {
+            const data = JSON.parse(savedData);
+
+            document.querySelectorAll('.input-grid input').forEach(input => {
+                if (data[input.id] !== undefined) {
+                    input.value = data[input.id];
+                }
+            });
+
+            // Load results if they were saved
+            const resultsSection = document.getElementById('resultsSection');
+            if (data['ownersEarningsResult']) {
+                document.getElementById('ownersEarnings').innerText = data['ownersEarningsResult'];
+                document.getElementById('intrinsicValue').innerText = data['intrinsicValueResult'];
+                document.getElementById('intrinsicValuePerShare').innerText = data['intrinsicValuePerShareResult'];
+                document.getElementById('displayMarketCap').innerText = data['displayMarketCapResult'];
+                document.getElementById('resultStockName').innerText = data['resultStockNameResult'];
+                document.getElementById('valuationResult').innerHTML = data['valuationResultHTML'];
+                document.getElementById('valuationResult').className = data['valuationResultClasses']; // Restore classes for styling
+                document.getElementById('resultsTable').innerHTML = data['resultsTableHTML'];
+                resultsSection.classList.remove('hidden'); // Show results section
+            }
+        }
+    }
+
+    /**
+     * Displays a message in the message box.
+     * @param {string} message - The message to display.
+     * @param {string} type - The type of message ('error', 'success', 'info').
+     */
+    function showMessage(message, type = 'error') {
+      const messageBox = document.getElementById('messageBox');
+      const messageText = document.getElementById('messageText');
+
+      messageText.innerText = message;
+      messageBox.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700', 'bg-green-100', 'border-green-400', 'text-green-700', 'bg-blue-100', 'border-blue-400', 'text-blue-700');
+
+      if (type === 'error') {
+        messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+      } else if (type === 'success') {
+        messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+      } else { // info
+        messageBox.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
+      }
+      messageBox.classList.remove('hidden');
+    }
+
+    /**
+     * Hides the message box.
+     */
+    function hideMessage() {
+      document.getElementById('messageBox').classList.add('hidden');
+    }
+
+    /**
+     * Toggles the visibility of an explanation popup, ensuring only one is open at a time.
+     * @param {string} explanationId - The ID of the explanation div to toggle.
+     * @param {Event} event - The event object to stop propagation.
+     */
+    function toggleExplanation(explanationId, event) {
+        event.stopPropagation(); // Stop the click from propagating to the document listener
+
+        const explanationElement = document.getElementById(explanationId);
+        const allExplanationPopups = document.querySelectorAll('.explanation-popup');
+        
+        // Before toggling, determine its current state
+        const wasHidden = explanationElement.classList.contains('hidden');
+
+        // Close all popups
+        allExplanationPopups.forEach(popup => {
+            popup.classList.add('hidden');
+        });
+
+        // If the clicked popup was previously hidden, show it now
+        if (wasHidden) {
+            explanationElement.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Validates a numerical input field.
+     * @param {string} elementId - The ID of the input element.
+     * @param {string} fieldName - The user-friendly name of the field for error messages.
+     * @param {boolean} allowNegative - Whether a negative value is allowed (e.g., for Change in Working Capital).
+     * @param {boolean} allowZero - Whether a value of zero is allowed.
+     * @returns {number|null} The parsed float value if valid, otherwise null.
+     */
+    function validateInput(elementId, fieldName, allowNegative = false, allowZero = true) {
+      const inputElement = document.getElementById(elementId);
+      const value = parseFloat(inputElement.value);
+
+      if (isNaN(value)) {
+        showMessage(`Please enter a valid number for '${fieldName}'.`, 'error');
+        inputElement.focus();
+        return null;
+      }
+      // If negative values are not allowed AND the value is negative, show error
+      if (!allowNegative && value < 0) {
+        showMessage(`'${fieldName}' cannot be negative.`, 'error');
+        inputElement.focus();
+        return null;
+      }
+      // If zero values are not allowed AND the value is zero, show error
+      if (!allowZero && value === 0) {
+        showMessage(`'${fieldName}' cannot be zero.`, 'error');
+        inputElement.focus();
+        return null;
+      }
+      return value;
+    }
+
+    /**
+     * Calculates the intrinsic value of a stock using a Discounted Cash Flow (DCF) model.
+     */
+    function calculateIV() {
+      hideMessage(); // Hide any previous messages
+
+      // Get and validate input values
+      const stockName = document.getElementById("stockName").value.trim();
+      if (!stockName) {
+        showMessage("Please enter a Stock Name.", 'error');
+        document.getElementById("stockName").focus();
+        return;
+      }
+
+      // All these inputs can be positive or negative based on financial statements
+      const netIncome = validateInput("netIncome", "Net Income (TTM)", true);
+      if (netIncome === null) return;
+
+      const da = validateInput("da", "Depreciation & Amortization", true);
+      if (da === null) return;
+
+      const capex = validateInput("capex", "Capital Expenditures", true);
+      if (capex === null) return;
+
+      // Updated variable name and validation for Non-Cash Items
+      const nonCashItems = validateInput("nonCashItems", "Non-Cash Items", true);
+      if (nonCashItems === null) return;
+
+      const netDebt = validateInput("netDebt", "Net Debt", true);
+      if (netDebt === null) return;
+
+      // These inputs should generally be positive and non-zero
+      const marketCap = validateInput("marketCap", "Current Market Cap", false, false);
+      if (marketCap === null) return;
+
+      const sharesOutstanding = validateInput("sharesOutstanding", "Shares Outstanding", false, false);
+      if (sharesOutstanding === null) return;
+
+      // Growth Rate can be negative
+      const growthRateInput = validateInput("growthRate", "Earnings Growth Rate (%)", true);
+      if (growthRateInput === null) return;
+      const growthRate = growthRateInput / 100; // Convert percentage to decimal
+
+      // Discount Rate must be positive and non-zero
+      const discountRateInput = validateInput("discountRate", "Discount Rate (%)", false, false);
+      if (discountRateInput === null) return;
+      const discountRate = discountRateInput / 100; // Convert percentage to decimal
+
+      // Corrected Owner's Earnings calculation: netIncome + da + nonCashItems - capex (order changed)
+      const ownersEarnings = netIncome + da + nonCashItems - capex;
+
+
+      // Display initial results
+      document.getElementById("resultsSection").classList.remove("hidden");
+      document.getElementById("resultStockName").innerText = stockName;
+      document.getElementById("ownersEarnings").innerText = `$${ownersEarnings.toFixed(2)}B`;
+      document.getElementById("displayMarketCap").innerText = `$${marketCap.toFixed(2)}B`;
+
+      // Calculate Discounted Cash Flow (DCF) for 20 years
+      let totalDCF = 0;
+      let resultsHTML = "";
+      let currentCashFlow = ownersEarnings;
+
+      for (let year = 1; year <= 20; year++) {
+        let effectiveGrowthRate = growthRate;
+        // After 5 years, the growth rate is halved to reflect a more mature growth phase.
+        if (year > 5) {
+          effectiveGrowthRate = growthRate / 2;
+        }
+
+        // Project cash flow for the current year
+        currentCashFlow *= (1 + effectiveGrowthRate);
+        // Calculate the discount factor for the current year
+        const discountFactor = Math.pow(1 + discountRate, year);
+        // Calculate the discounted cash flow for the current year
+        const discountedCF = currentCashFlow / discountFactor;
+        // Add to the total discounted cash flow
+        totalDCF += discountedCF;
+
+        // Append row to the results table
+        resultsHTML += `
+          <tr class="${year % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
+            <td class="p-3 border-b border-border rounded-bl-lg">${year}</td>
+            <td class="p-3 border-b border-border">$${currentCashFlow.toFixed(2)}</td>
+            <td class="p-3 border-b border-border">${discountFactor.toFixed(4)}</td>
+            <td class="p-3 border-b border-border rounded-br-lg">$${discountedCF.toFixed(2)}</td>
+          </tr>
+        `;
+      }
+
+      // Calculate total intrinsic value
+      // Total Intrinsic Value = Sum of Discounted Cash Flows - Net Debt
+      const totalIntrinsicValue = totalDCF - netDebt;
+      document.getElementById("intrinsicValue").innerText = `$${totalIntrinsicValue.toFixed(2)}B`;
+
+      // Calculate intrinsic value per share
+      let intrinsicValuePerShare = 0;
+      if (sharesOutstanding > 0) {
+        intrinsicValuePerShare = totalIntrinsicValue / sharesOutstanding;
+      }
+      document.getElementById("intrinsicValuePerShare").innerText = `$${intrinsicValuePerShare.toFixed(2)}`;
+      document.getElementById("resultsTable").innerHTML = resultsHTML;
+
+      // Determine valuation comparison (undervalued, overvalued, or fairly valued)
+      const valuationResultElement = document.getElementById("valuationResult");
+      valuationResultElement.classList.remove("bg-green-100", "text-success", "border", "border-green-400",
+                                           "bg-red-100", "text-warning", "border", "border-red-400",
+                                           "bg-blue-100", "text-primary", "border", "border-blue-400"); // Clear previous classes
+      // Add specific classes for print readability
+      valuationResultElement.classList.remove("undervalued", "overvalued", "fair-value");
+
+
+      if (marketCap > 0) {
+        // Calculate potential return based on market cap
+        const potentialReturnPercentage = ((totalIntrinsicValue - marketCap) / marketCap) * 100;
+        const absPotentialReturnPercentage = Math.abs(potentialReturnPercentage).toFixed(2);
+
+        // Calculate undervalued/overvalued percentage relative to intrinsic value
+        let undervaluedOvervaluedPercentage = 0;
+        if (totalIntrinsicValue !== 0) {
+          undervaluedOvervaluedPercentage = ((totalIntrinsicValue - marketCap) / totalIntrinsicValue) * 100;
+        }
+        const absUndervaluedOvervaluedPercentage = Math.abs(undervaluedOvervaluedPercentage).toFixed(2);
+
+
+        if (potentialReturnPercentage > 15) { // Stock is undervalued if intrinsic value is significantly higher
+          valuationResultElement.classList.add("bg-green-100", "text-success", "border", "border-green-400", "undervalued");
+          valuationResultElement.innerHTML = `
+            <strong>Undervalued by ${absUndervaluedOvervaluedPercentage}% (Potential Upside: ${absPotentialReturnPercentage}%)</strong><br>
+            The intrinsic value ($${totalIntrinsicValue.toFixed(2)}B) is significantly higher than the market cap ($${marketCap.toFixed(2)}B).<br>
+            True value per share: $${intrinsicValuePerShare.toFixed(2)}
+          `;
+        } else if (potentialReturnPercentage < -15) { // Stock is overvalued if intrinsic value is significantly lower
+          valuationResultElement.classList.add("bg-red-100", "text-warning", "border", "border-red-400", "overvalued");
+          valuationResultElement.innerHTML = `
+            <strong>Overvalued by ${absUndervaluedOvervaluedPercentage}% (Potential Downside: ${absPotentialReturnPercentage}%)</strong><br>
+            The intrinsic value ($${totalIntrinsicValue.toFixed(2)}B) is significantly lower than the market cap ($${marketCap.toFixed(2)}B).<br>
+            True value per share: $${intrinsicValuePerShare.toFixed(2)}
+          `;
+        } else { // Stock is fairly valued (within +/- 15% range)
+          valuationResultElement.classList.add("bg-blue-100", "text-primary", "border", "border-blue-400", "fair-value");
+          let statusText = "Fairly Valued";
+          if (potentialReturnPercentage > 0) {
+            statusText = `Fairly Valued (Slightly Undervalued with Potential Upside: ${absPotentialReturnPercentage}%)`;
+          } else if (potentialReturnPercentage < 0) {
+            statusText = `Fairly Valued (Slightly Overvalued with Potential Downside: ${absPotentialReturnPercentage}%)`;
+          }
+          valuationResultElement.innerHTML = `
+            <strong>${statusText}</strong><br>The intrinsic value ($${totalIntrinsicValue.toFixed(2)}B) is close to the market cap ($${marketCap.toFixed(2)}B).<br>True value per share: $${intrinsicValuePerShare.toFixed(2)}`;
+        }
+      } else {
+        // Case where market cap is not provided
+        valuationResultElement.classList.add("bg-blue-100", "text-primary", "border", "border-blue-400", "fair-value");
+        valuationResultElement.innerHTML = `
+          <strong>Intrinsic Value Calculated:</strong> $${totalIntrinsicValue.toFixed(2)}B<br>
+          <strong>True value per share:</strong> $${intrinsicValuePerShare.toFixed(2)}<br>
+          No market cap provided for comparison.
+        `;
+      }
+      saveData(); // Save results after calculation
+    }
+
+    /**
+     * Resets the calculator by clearing all input fields and hiding the results.
+     */
+    function resetCalculator() {
+        document.querySelectorAll('.input-grid input').forEach(input => {
+            input.value = '';
+        });
+        document.getElementById('resultsSection').classList.add('hidden');
+        hideMessage(); // Hide any error messages
+        localStorage.removeItem(LOCAL_STORAGE_KEY); // Clear saved data
+    }
+
+    /**
+     * Prints the relevant sections of the calculator.
+     * This function uses CSS @media print to control visibility during printing.
+     */
+    function printResults() {
+      // Set the current date for printing
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      document.getElementById('printDateStamp').innerText = `Date: ${now.toLocaleDateString(undefined, options)}`;
+
+      window.print(); // Trigger the browser's print dialog
+    }
+
+    // Global click listener to close popups when clicking anywhere on the document body
+    document.addEventListener('click', function(event) {
+        const allExplanationPopups = document.querySelectorAll('.explanation-popup');
+        
+        // Check if the click event originated from an info-button or inside a popup
+        let clickedInsidePopupOrButton = false;
+        if (event.target.closest('.info-button')) { // Check if the clicked element or its ancestor has the class 'info-button'
+            clickedInsidePopupOrButton = true;
+        } else {
+            allExplanationPopups.forEach(popup => {
+                if (popup.contains(event.target)) {
+                    clickedInsidePopupOrButton = true;
+                }
+            });
+        }
+
+        // If the click was NOT inside an info button and NOT inside any popup, close all popups
+        if (!clickedInsidePopupOrButton) {
+            allExplanationPopups.forEach(popup => {
+                popup.classList.add('hidden');
+            });
+        }
+    });
+
+    // Initialize calculator instance on page load
+    document.addEventListener('DOMContentLoaded', loadData);
+
+  </script>
+
+
+ 
+ 
+  </a>
+</div>
+
+</body>
+</html>
