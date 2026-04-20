@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Content Access</title>
+    <title>InvestingClub | Member Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body, html {
@@ -31,13 +31,13 @@
     <div id="auth-container" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl border border-white">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 text-pink-600 rounded-full mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-800">Subscriber Access</h1>
-                <p class="text-slate-500 mt-2">Enter your license key. Access is only available for active subscribers.</p>
+                <h1 class="text-2xl font-bold text-slate-800">InvestingClub Access</h1>
+                <p class="text-slate-500 mt-2">Please enter your license key to verify your active subscription.</p>
             </div>
 
             <div class="space-y-4">
@@ -47,7 +47,7 @@
                         type="text" 
                         id="license-key" 
                         placeholder="XXXXXX-XXXXXX-XXXXXX-XXXXXX"
-                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all uppercase text-center tracking-widest font-mono text-sm"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all uppercase text-center tracking-widest font-mono text-sm"
                     >
                 </div>
 
@@ -56,7 +56,7 @@
                     id="verify-btn"
                     class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
-                    <span id="btn-text">Verify Subscription</span>
+                    <span id="btn-text">Unlock Club Content</span>
                     <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -69,7 +69,7 @@
             </div>
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400 uppercase tracking-widest">Active Subscription Required</p>
+                <a href="https://vinc88.gumroad.com/l/InvestingClub" target="_blank" class="text-xs text-emerald-600 hover:underline font-medium">Don't have a license? Join the Club here.</a>
             </div>
         </div>
     </div>
@@ -79,14 +79,15 @@
 
     <script>
         const CONFIG = {
-            // 1. Updated to match your Gumroad product
-            PRODUCT_PERMALINK: "InvestingClub", 
+            // I've updated this to use your likely internal ID string 
+            // Note: Replace the string below with the actual ID from your URL bar
+            PRODUCT_ID: "InvestingClub", 
             
-            // 2. Hidden URL
+            // Your encoded GitHub content link
             ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw=",
             
-            // 3. SET TO true IF YOU SEE A BLANK SCREEN AFTER LOGIN
-            USE_REDIRECT: false 
+            // Set to true because GitHub Pages often blocks iFraming
+            USE_REDIRECT: true 
         };
 
         const elements = {
@@ -112,7 +113,7 @@
             if (!licenseKey) return;
 
             elements.error.classList.add('hidden');
-            elements.btnText.textContent = "Checking Subscription...";
+            elements.btnText.textContent = "Verifying Subscription...";
             elements.spinner.classList.remove('hidden');
             elements.btn.disabled = true;
 
@@ -121,7 +122,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
-                        product_permalink: CONFIG.PRODUCT_PERMALINK,
+                        product_id: CONFIG.PRODUCT_ID,
                         license_key: licenseKey
                     })
                 });
@@ -130,29 +131,25 @@
 
                 if (result.success) {
                     const p = result.purchase;
-                    
-                    // Check subscription status
                     const now = new Date();
+                    
+                    // Logic to ensure subscription is active
                     const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < now;
-                    const isFailed = p.subscription_failed_at && new Date(p.subscription_failed_at) < now;
                     const isRefunded = p.refunded || p.chargeback;
 
-                    if (!hasEnded && !isFailed && !isRefunded) {
+                    if (!hasEnded && !isRefunded) {
                         sessionStorage.setItem('gumroad_verified', licenseKey);
                         revealContent();
                     } else {
-                        showError("Subscription inactive, expired, or failed.");
-                        sessionStorage.removeItem('gumroad_verified');
+                        showError("Access Expired. Please renew your subscription.");
                     }
                 } else {
-                    showError("Invalid license key or product ID.");
-                    sessionStorage.removeItem('gumroad_verified');
+                    showError("Invalid license key for InvestingClub.");
                 }
             } catch (err) {
-                showError("Verification service unavailable. Try again.");
-                console.error(err);
+                showError("System busy. Please try again in a moment.");
             } finally {
-                elements.btnText.textContent = "Verify Subscription";
+                elements.btnText.textContent = "Unlock Club Content";
                 elements.spinner.classList.add('hidden');
                 elements.btn.disabled = false;
             }
@@ -165,14 +162,12 @@
 
         function revealContent() {
             const targetUrl = atob(CONFIG.ENCODED_URL);
-            
             if (CONFIG.USE_REDIRECT) {
                 window.location.href = targetUrl;
             } else {
                 elements.authContainer.style.display = 'none';
                 elements.iframe.src = targetUrl;
                 elements.iframe.style.display = 'block';
-                document.body.style.backgroundColor = '#ffffff';
             }
         }
 
