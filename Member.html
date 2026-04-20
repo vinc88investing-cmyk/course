@@ -79,12 +79,14 @@
 
     <script>
         const CONFIG = {
-            /** * ACTION REQUIRED: 
-             * Replace 'YOUR_PRODUCT_ID' with the part of your Gumroad product URL 
-             * that comes after 'gumroad.com/l/'.
-             */
-            PRODUCT_PERMALINK: "YOUR_PRODUCT_ID", 
-            ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw="
+            // 1. Updated to match your Gumroad product
+            PRODUCT_PERMALINK: "InvestingClub", 
+            
+            // 2. Hidden URL
+            ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw=",
+            
+            // 3. SET TO true IF YOU SEE A BLANK SCREEN AFTER LOGIN
+            USE_REDIRECT: false 
         };
 
         const elements = {
@@ -129,24 +131,26 @@
                 if (result.success) {
                     const p = result.purchase;
                     
-                    // Subscription logic checks
-                    const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < new Date();
-                    const isCancelled = p.subscription_cancelled_at && new Date(p.subscription_cancelled_at) < new Date();
+                    // Check subscription status
+                    const now = new Date();
+                    const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < now;
+                    const isFailed = p.subscription_failed_at && new Date(p.subscription_failed_at) < now;
                     const isRefunded = p.refunded || p.chargeback;
 
-                    if (!hasEnded && !isCancelled && !isRefunded) {
+                    if (!hasEnded && !isFailed && !isRefunded) {
                         sessionStorage.setItem('gumroad_verified', licenseKey);
                         revealContent();
                     } else {
-                        showError("Subscription inactive or expired.");
+                        showError("Subscription inactive, expired, or failed.");
                         sessionStorage.removeItem('gumroad_verified');
                     }
                 } else {
-                    showError("Invalid license key.");
+                    showError("Invalid license key or product ID.");
                     sessionStorage.removeItem('gumroad_verified');
                 }
             } catch (err) {
-                showError("System error. Please try again later.");
+                showError("Verification service unavailable. Try again.");
+                console.error(err);
             } finally {
                 elements.btnText.textContent = "Verify Subscription";
                 elements.spinner.classList.add('hidden');
@@ -161,14 +165,15 @@
 
         function revealContent() {
             const targetUrl = atob(CONFIG.ENCODED_URL);
-            elements.authContainer.style.display = 'none';
             
-            // NOTE: If your site blocks iframing, replace the next two lines with:
-            // window.location.href = targetUrl;
-            
-            elements.iframe.src = targetUrl;
-            elements.iframe.style.display = 'block';
-            document.body.style.backgroundColor = '#ffffff';
+            if (CONFIG.USE_REDIRECT) {
+                window.location.href = targetUrl;
+            } else {
+                elements.authContainer.style.display = 'none';
+                elements.iframe.src = targetUrl;
+                elements.iframe.style.display = 'block';
+                document.body.style.backgroundColor = '#ffffff';
+            }
         }
 
         elements.keyInput.addEventListener('keypress', (e) => {
