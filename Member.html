@@ -67,7 +67,7 @@
                     Access denied.
                 </div>
                 
-                <!-- Debug Output (Only visible if DEBUG_MODE is true) -->
+                <!-- Debug Output (Now visible by default for troubleshooting) -->
                 <div id="debug-box" class="hidden mt-4 p-3 bg-black text-lime-400 font-mono text-[10px] rounded-lg overflow-x-auto"></div>
             </div>
 
@@ -82,7 +82,7 @@
 
     <script>
         const CONFIG = {
-            // Updated with your real Product ID
+            // Updated with your verified real Product ID
             PRODUCT_ID: "qS1QmSbao9D2_SZKpcnVvg==", 
             
             // Your encoded GitHub content link
@@ -90,8 +90,8 @@
             
             USE_REDIRECT: true,
             
-            // Set this to 'true' if you need to see raw API errors for troubleshooting
-            DEBUG_MODE: false 
+            // Set to true to see exactly what Gumroad says about your key
+            DEBUG_MODE: true 
         };
 
         const elements = {
@@ -136,7 +136,7 @@
                 const result = await response.json();
 
                 if (CONFIG.DEBUG_MODE) {
-                    elements.debug.textContent = "API Response: " + JSON.stringify(result);
+                    elements.debug.textContent = "Gumroad says: " + (result.message || JSON.stringify(result));
                     elements.debug.classList.remove('hidden');
                 }
 
@@ -157,11 +157,7 @@
                     showError(result.message || "Invalid license key.");
                 }
             } catch (err) {
-                showError("Connection error. Try testing on your live URL.");
-                if (CONFIG.DEBUG_MODE) {
-                    elements.debug.textContent = "Error: " + err.message;
-                    elements.debug.classList.remove('hidden');
-                }
+                showError("Connection error. Testing on live GitHub Pages is recommended.");
             } finally {
                 elements.btnText.textContent = "Unlock Club Content";
                 elements.spinner.classList.add('hidden');
