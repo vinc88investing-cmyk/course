@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Content Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+        }
+        #course-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <!-- Verification UI -->
+    <div id="auth-container" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl border border-white">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 text-pink-600 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-800">Subscriber Access</h1>
+                <p class="text-slate-500 mt-2">Enter your license key. Access is only available for active subscribers.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="license-key" class="block text-sm font-medium text-slate-700 mb-1">License Key</label>
+                    <input 
+                        type="text" 
+                        id="license-key" 
+                        placeholder="XXXXXX-XXXXXX-XXXXXX-XXXXXX"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all uppercase text-center tracking-widest font-mono text-sm"
+                    >
+                </div>
+
+                <button 
+                    onclick="handleVerification()" 
+                    id="verify-btn"
+                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                    <span id="btn-text">Verify Subscription</span>
+                    <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+
+                <div id="error-msg" class="hidden text-red-500 text-sm text-center font-medium bg-red-50 p-3 rounded-lg border border-red-100">
+                    Access denied.
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-400 uppercase tracking-widest">Active Subscription Required</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Iframe -->
+    <iframe id="course-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+
+    <script>
+        const CONFIG = {
+            PRODUCT_PERMALINK: "YOUR_PRODUCT_ID", 
+            ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw="
+        };
+
+        const elements = {
+            keyInput: document.getElementById('license-key'),
+            btn: document.getElementById('verify-btn'),
+            btnText: document.getElementById('btn-text'),
+            spinner: document.getElementById('spinner'),
+            error: document.getElementById('error-msg'),
+            authContainer: document.getElementById('auth-container'),
+            iframe: document.getElementById('course-frame')
+        };
+
+        window.onload = () => {
+            const savedKey = sessionStorage.getItem('gumroad_verified');
+            if (savedKey) {
+                elements.keyInput.value = savedKey;
+                handleVerification();
+            }
+        };
+
+        async function handleVerification() {
+            const licenseKey = elements.keyInput.value.trim();
+            if (!licenseKey) return;
+
+            elements.error.classList.add('hidden');
+            elements.btnText.textContent = "Checking Subscription...";
+            elements.spinner.classList.remove('hidden');
+            elements.btn.disabled = true;
+
+            try {
+                const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        product_permalink: CONFIG.PRODUCT_PERMALINK,
+                        license_key: licenseKey
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const p = result.purchase;
+                    
+                    // 1. Check if it's a subscription and if it has ended
+                    const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < new Date();
+                    // 2. Check for cancellations that have already taken effect
+                    const isCancelled = p.subscription_cancelled_at && new Date(p.subscription_cancelled_at) < new Date();
+                    // 3. Check for refunds
+                    const isRefunded = p.refunded || p.chargeback;
+
+                    if (!hasEnded && !isCancelled && !isRefunded) {
+                        sessionStorage.setItem('gumroad_verified', licenseKey);
+                        revealContent();
+                    } else {
+                        showError("Subscription inactive or expired.");
+                        sessionStorage.removeItem('gumroad_verified');
+                    }
+                } else {
+                    showError("Invalid license key.");
+                    sessionStorage.removeItem('gumroad_verified');
+                }
+            } catch (err) {
+                showError("System error. Please try again later.");
+            } finally {
+                elements.btnText.textContent = "Verify Subscription";
+                elements.spinner.classList.add('hidden');
+                elements.btn.disabled = false;
+            }
+        }
+
+        function showError(msg) {
+            elements.error.textContent = msg;
+            elements.error.classList.remove('hidden');
+        }
+
+        function revealContent() {
+            const targetUrl = atob(CONFIG.ENCODED_URL);
+            elements.authContainer.style.display = 'none';
+            elements.iframe.src = targetUrl;
+            elements.iframe.style.display = 'block';
+            document.body.style.backgroundColor = '#ffffff';
+        }
+
+        elements.keyInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleVerification();
+        });
+    </script>
+</body>
+</html>
