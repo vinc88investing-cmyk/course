@@ -79,6 +79,10 @@
 
     <script>
         const CONFIG = {
+            /** * ACTION REQUIRED: 
+             * Replace 'YOUR_PRODUCT_ID' with the part of your Gumroad product URL 
+             * that comes after 'gumroad.com/l/'.
+             */
             PRODUCT_PERMALINK: "YOUR_PRODUCT_ID", 
             ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw="
         };
@@ -125,11 +129,9 @@
                 if (result.success) {
                     const p = result.purchase;
                     
-                    // 1. Check if it's a subscription and if it has ended
+                    // Subscription logic checks
                     const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < new Date();
-                    // 2. Check for cancellations that have already taken effect
                     const isCancelled = p.subscription_cancelled_at && new Date(p.subscription_cancelled_at) < new Date();
-                    // 3. Check for refunds
                     const isRefunded = p.refunded || p.chargeback;
 
                     if (!hasEnded && !isCancelled && !isRefunded) {
@@ -160,6 +162,10 @@
         function revealContent() {
             const targetUrl = atob(CONFIG.ENCODED_URL);
             elements.authContainer.style.display = 'none';
+            
+            // NOTE: If your site blocks iframing, replace the next two lines with:
+            // window.location.href = targetUrl;
+            
             elements.iframe.src = targetUrl;
             elements.iframe.style.display = 'block';
             document.body.style.backgroundColor = '#ffffff';
