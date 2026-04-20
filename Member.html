@@ -66,6 +66,9 @@
                 <div id="error-msg" class="hidden text-red-500 text-sm text-center font-medium bg-red-50 p-3 rounded-lg border border-red-100">
                     Access denied.
                 </div>
+                
+                <!-- Debug Output (Only visible if DEBUG_MODE is true) -->
+                <div id="debug-box" class="hidden mt-4 p-3 bg-black text-lime-400 font-mono text-[10px] rounded-lg overflow-x-auto"></div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
@@ -79,15 +82,16 @@
 
     <script>
         const CONFIG = {
-            // I've updated this to use your likely internal ID string 
-            // Note: Replace the string below with the actual ID from your URL bar
-            PRODUCT_ID: "InvestingClub", 
+            // Updated with your real Product ID
+            PRODUCT_ID: "qS1QmSbao9D2_SZKpcnVvg==", 
             
             // Your encoded GitHub content link
             ENCODED_URL: "aHR0cHM6Ly92aW5jODhpbnZlc3RpbmctY215ay5naXRodWIuaW8vY291cnNlL0NJLmh0bWw=",
             
-            // Set to true because GitHub Pages often blocks iFraming
-            USE_REDIRECT: true 
+            USE_REDIRECT: true,
+            
+            // Set this to 'true' if you need to see raw API errors for troubleshooting
+            DEBUG_MODE: false 
         };
 
         const elements = {
@@ -97,7 +101,8 @@
             spinner: document.getElementById('spinner'),
             error: document.getElementById('error-msg'),
             authContainer: document.getElementById('auth-container'),
-            iframe: document.getElementById('course-frame')
+            iframe: document.getElementById('course-frame'),
+            debug: document.getElementById('debug-box')
         };
 
         window.onload = () => {
@@ -113,7 +118,8 @@
             if (!licenseKey) return;
 
             elements.error.classList.add('hidden');
-            elements.btnText.textContent = "Verifying Subscription...";
+            elements.debug.classList.add('hidden');
+            elements.btnText.textContent = "Verifying...";
             elements.spinner.classList.remove('hidden');
             elements.btn.disabled = true;
 
@@ -129,11 +135,15 @@
 
                 const result = await response.json();
 
+                if (CONFIG.DEBUG_MODE) {
+                    elements.debug.textContent = "API Response: " + JSON.stringify(result);
+                    elements.debug.classList.remove('hidden');
+                }
+
                 if (result.success) {
                     const p = result.purchase;
                     const now = new Date();
                     
-                    // Logic to ensure subscription is active
                     const hasEnded = p.subscription_ended_at && new Date(p.subscription_ended_at) < now;
                     const isRefunded = p.refunded || p.chargeback;
 
@@ -144,10 +154,14 @@
                         showError("Access Expired. Please renew your subscription.");
                     }
                 } else {
-                    showError("Invalid license key for InvestingClub.");
+                    showError(result.message || "Invalid license key.");
                 }
             } catch (err) {
-                showError("System busy. Please try again in a moment.");
+                showError("Connection error. Try testing on your live URL.");
+                if (CONFIG.DEBUG_MODE) {
+                    elements.debug.textContent = "Error: " + err.message;
+                    elements.debug.classList.remove('hidden');
+                }
             } finally {
                 elements.btnText.textContent = "Unlock Club Content";
                 elements.spinner.classList.add('hidden');
